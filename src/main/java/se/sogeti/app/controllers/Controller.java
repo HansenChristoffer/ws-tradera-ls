@@ -38,44 +38,9 @@ public class Controller<T> {
         this.gson = new GsonBuilder().setLenient().create();
     }
 
-    public LinkDTO getOpenLink() {
-        return gson.fromJson(callGet("http://".concat(Constants.databaseIp).concat(":").concat(Constants.databasePort)
-                .concat("/api/links/open")), LinkDTO.class);
-    }
-
     public CategoryDTO getOpenCategory() {
         return gson.fromJson(callGet("http://".concat(Constants.databaseIp).concat(":").concat(Constants.databasePort)
                 .concat("/api/categories/open")), CategoryDTO.class);
-    }
-
-    @SuppressWarnings("unchecked")
-    public T postSingle(T object, String uri) {
-        T responseObject = null;
-
-        try {
-            String bodyJson = gson.toJson(object);
-
-            HttpRequest request = HttpRequest.newBuilder().POST(BodyPublishers.ofString(bodyJson)).uri(URI.create(uri))
-                    .header("Content-Type", "application/json").header("User-Agent", Constants.INTERNAL_USER_AGENT)
-                    .build();
-
-            CompletableFuture<HttpResponse<String>> response = client.sendAsync(request,
-                    HttpResponse.BodyHandlers.ofString());
-
-            response.join();
-
-            responseObject = (T) gson.fromJson(response.thenApply(HttpResponse::body).get(5, TimeUnit.SECONDS),
-                    object.getClass());
-
-            Thread.sleep(500);
-        } catch (InterruptedException e) {
-            LOGGER.error("postSingle.InterruptedException == {}", e.getMessage());
-            Thread.currentThread().interrupt();
-        } catch (Exception e) {
-            LOGGER.info("postSingle.Exception == {}, {}", e.getMessage(), e.getCause());
-        }
-
-        return responseObject;
     }
 
     public Set<T> postMultiple(Set<T> objects, String uri) {
