@@ -32,7 +32,6 @@ public class Constants {
     public static final String BUTTON_COOKIES_SELECTOR = "//*[@id=\"qc-cmp2-ui\"]/div[2]/div/button[2]";
     public static final String ZERO_DATA_RESULTS = "article.data-zero-result";
     public static final String CATEGORY_TITLE_ON_LINK_PAGE = "body > div.site-container.bp > div.site-main > div.search-results-page.site-width > div > div > div.col-md-9.col-sm-12.search-results-wrapper > header > div.search-results-header__heading.row.justify-content-between.pb-3.py-md-3 > div.col-12.d-flex.align-items-center.justify-content-center.justify-content-md-start > h1";
-    public static final String ATTR_CONTENT = "content";
     public static final String ZDT_FORMAT_END_PATTERN = ":01.1+01:00[Europe/Paris]";
     private static ZonedDateTime dateTimeNow;
 
