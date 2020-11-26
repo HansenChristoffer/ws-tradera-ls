@@ -3,6 +3,7 @@ package se.sogeti.app.drivers;
 import java.lang.invoke.MethodHandles;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.HashMap;
 import java.util.concurrent.TimeUnit;
 
 import org.openqa.selenium.WebDriver;
@@ -12,7 +13,7 @@ import org.openqa.selenium.remote.RemoteWebDriver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import se.sogeti.app.config.Constants;
+import se.sogeti.app.config.Settings;
 
 public class DriverFactory {
 
@@ -20,12 +21,13 @@ public class DriverFactory {
     }
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass().getName());
+    private static final Settings settings = Settings.getInstance();
 
     public static WebDriver createInstance(String browserType) throws MalformedURLException {
         WebDriver driver = null;
 
         if (browserType.toLowerCase().contains("chrome")) {
-            switch (Constants.DRIVER_RUNNER) {
+            switch (settings.getDriverRunner()) {
                 case "local":
                     driver = createLocalChromeDriver();
                     break;
@@ -34,7 +36,7 @@ public class DriverFactory {
                     break;
                 default:
                     LOGGER.error(
-                            "The value for Constants.DRIVER_RUNNER is not correct; Valid options are: local and remote");
+                            "The value for settings.getDriverPath() is not correct; Valid options are: local and remote");
             }
         }
         return driver;
@@ -44,33 +46,30 @@ public class DriverFactory {
         final String osName = System.getProperty("os.name");
 
         if (osName.contains("Linux")) {
-            System.setProperty("webdriver.chrome.driver", Constants.DRIVERS_PATH.concat("chromedriver_linux"));
+            System.setProperty("webdriver.chrome.driver", settings.getDriverPath().concat("chromedriver_linux"));
         } else if (osName.contains("Windows")) {
-            System.setProperty("webdriver.chrome.driver", Constants.DRIVERS_PATH.concat("chromedriver_win.exe"));
+            System.setProperty("webdriver.chrome.driver", settings.getDriverPath().concat("chromedriver_win.exe"));
         } else if (osName.contains("Mac")) {
-            System.setProperty("webdriver.chrome.driver", Constants.DRIVERS_PATH.concat("chromedriver_mac"));
+            System.setProperty("webdriver.chrome.driver", settings.getDriverPath().concat("chromedriver_mac"));
         } else {
             LOGGER.error("Non compatible operative system!");
         }
 
         ChromeOptions options = new ChromeOptions();
         options.setHeadless(true);
-        // options.addArguments("--disable-gpu",
-        // "--blink-settings=imagesEnabled=false");
+        options.addArguments("--disable-gpu", "--blink-settings=imagesEnabled=false");
 
-        // -------------
-        // HashMap<String, Object> images = new HashMap<String, Object>();
-        // images.put("images", 2);
-        // HashMap<String, Object> prefs = new HashMap<String, Object>();
-        // options.setExperimentalOption("prefs", prefs);
-        // prefs.put("profile.default_content_setting_values", images);
-        // -------------
+        HashMap<String, Object> images = new HashMap<>();
+        images.put("images", 2);
+        HashMap<String, Object> prefs = new HashMap<>();
+        options.setExperimentalOption("prefs", prefs);
+        prefs.put("profile.default_content_setting_values", images);
 
         WebDriver driver = new ChromeDriver(options);
         driver.manage().deleteAllCookies();
         driver.manage().window().maximize();
-        driver.manage().timeouts().pageLoadTimeout(Constants.PAGE_LOAD_TIMEOUT, TimeUnit.SECONDS);
-        driver.manage().timeouts().implicitlyWait(Constants.IMPLICIT_WAIT_TIMEOUT, TimeUnit.SECONDS);
+        driver.manage().timeouts().pageLoadTimeout(settings.getPageLoadTimeout(), TimeUnit.SECONDS);
+        driver.manage().timeouts().implicitlyWait(settings.getImplicitWaitTimeout(), TimeUnit.SECONDS);
         return driver;
     }
 
@@ -82,8 +81,8 @@ public class DriverFactory {
         WebDriver driver = new RemoteWebDriver(new URL(""), options);
         driver.manage().deleteAllCookies();
         driver.manage().window().maximize();
-        driver.manage().timeouts().pageLoadTimeout(Constants.PAGE_LOAD_TIMEOUT, TimeUnit.SECONDS);
-        driver.manage().timeouts().implicitlyWait(Constants.IMPLICIT_WAIT_TIMEOUT, TimeUnit.SECONDS);
+        driver.manage().timeouts().pageLoadTimeout(settings.getPageLoadTimeout(), TimeUnit.SECONDS);
+        driver.manage().timeouts().implicitlyWait(settings.getImplicitWaitTimeout(), TimeUnit.SECONDS);
         return driver;
     }
 }

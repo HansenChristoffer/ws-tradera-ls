@@ -25,7 +25,7 @@ import org.slf4j.LoggerFactory;
 import ru.yandex.qatools.ashot.AShot;
 import ru.yandex.qatools.ashot.Screenshot;
 import ru.yandex.qatools.ashot.shooting.ShootingStrategies;
-import se.sogeti.app.config.Constants;
+import se.sogeti.app.config.Settings;
 import se.sogeti.app.database.Database;
 import se.sogeti.app.drivers.DriverFactory;
 import se.sogeti.app.drivers.DriverManager;
@@ -34,9 +34,10 @@ import se.sogeti.app.models.dto.LinkDTO;
 public class LinkScraper implements Runnable, BaseScraper {
 
   public static final Logger LOGGER = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass().getName());
+  private final Settings settings = Settings.getInstance();
 
   private volatile boolean isRunning = true;
-  private final Database<LinkDTO> database = new Database<>();
+  private final Database database = new Database();
 
   private Set<LinkDTO> fetchedLinks = new HashSet<>();
   private Set<LinkDTO> formerLinks = new HashSet<>();
@@ -49,16 +50,16 @@ public class LinkScraper implements Runnable, BaseScraper {
     try {
       fetchAndEnterCategory(driver);
 
-      new WebDriverWait(driver, 5)
-          .until(ExpectedConditions.elementToBeClickable(By.xpath(Constants.BUTTON_COOKIES_SELECTOR))).click();
+      new WebDriverWait(driver, 5).until(ExpectedConditions.elementToBeClickable(By.xpath(settings.getButtonCookie())))
+          .click();
       LOGGER.info("Closed \"accept cookie popup\" window!");
 
       while (isRunning) {
         LOGGER.info("URL == {}", driver.getCurrentUrl());
         Document doc = Jsoup.parse(driver.getPageSource());
 
-        if (doc.select(Constants.ZERO_DATA_RESULTS).isEmpty() && isNotErrorPage(doc)) {
-          Elements links = doc.select(Constants.SELECT_LINK_PATTERN);
+        if (doc.select(settings.getSelectZeroData()).isEmpty() && isNotErrorPage(doc)) {
+          Elements links = doc.select(settings.getSelectLink());
 
           ZonedDateTime zdt = ZonedDateTime.parse(database.getPublished(links.get(0).attr("href").split("/")[3]));
 
@@ -69,7 +70,7 @@ public class LinkScraper implements Runnable, BaseScraper {
             links.forEach(link -> {
               if (!link.parent().parent().getElementsByAttributeValue("class", "text-danger text-truncate mr-2")
                   .isEmpty()) {
-                fetchedLinks.add(new LinkDTO((Constants.BASE_URL + link.attr("href"))));
+                fetchedLinks.add(new LinkDTO((settings.getBaseUrl() + link.attr("href"))));
               }
             });
 
@@ -80,18 +81,17 @@ public class LinkScraper implements Runnable, BaseScraper {
             LOGGER.info("FormerLinks removed, FetchedLinks.size == {}", fetchedLinks.size());
 
             formerLinks.clear();
-            formerLinks = database.postMultiple(fetchedLinks, "http://".concat(Constants.databaseIp).concat(":")
-                .concat(Constants.databasePort).concat("/api/links/all"));
+            formerLinks = database.postMultiple(fetchedLinks, settings.getApiURL().concat("/api/links/all"));
             LOGGER.info("Saved links, FormerLinks.size == {}", fetchedLinks.size());
 
             String nextHref = "";
-            nextHref = doc.select(Constants.NEXT_BUTTON_SELECTOR).attr("href");
+            nextHref = doc.select(settings.getButtonNext()).attr("href");
 
             LOGGER.info("nextHref == {}", nextHref);
             if (!nextHref.isBlank()) {
               LOGGER.info(" - GETTING NEW PAGE - ");
-              driver.get(Constants.BASE_URL.concat(nextHref));
-              waitForPageLoad(Constants.CATEGORY_TITLE_ON_LINK_PAGE, driver, 10);
+              driver.get(settings.getBaseUrl().concat(nextHref));
+              waitForPageLoad(settings.getSelectPageLoaded(), driver, 10);
             } else {
               fetchAndEnterCategory(driver);
             }
@@ -122,16 +122,15 @@ public class LinkScraper implements Runnable, BaseScraper {
   // Will fetch the links advert by the passed object number, use the published
   // date and check if it is within 24 hours from start of the scraper
   private boolean isValidDate(ZonedDateTime zdt) {
-    return (zdt.isAfter(Constants.getDateTimeNow().minusDays(1))
-        && zdt.isBefore(Constants.getDateTimeNow().plusMinutes(1)));
+    return (zdt.isAfter(settings.getDateTimeNow().minusDays(1))
+        && zdt.isBefore(settings.getDateTimeNow().plusMinutes(1)));
   }
 
   private void fetchAndEnterCategory(WebDriver driver) {
     formerLinks.clear();
-    String url = Constants.BASE_URL.concat(database.fetchOpenCategory().getHref())
-        .concat(Constants.FILTER_SETTINGS_URL);
+    String url = settings.getBaseUrl().concat(database.fetchOpenCategory().getHref()).concat(settings.getFilterUrl());
     driver.get(url);
-    waitForPageLoad(Constants.CATEGORY_TITLE_ON_LINK_PAGE, driver, 10);
+    waitForPageLoad(settings.getSelectPageLoaded(), driver, 10);
   }
 
   private boolean isNotErrorPage(Document doc) {
@@ -175,7 +174,7 @@ public class LinkScraper implements Runnable, BaseScraper {
     try {
       wait.until(ExpectedConditions.presenceOfElementLocated(By.cssSelector(selector)));
     } catch (TimeoutException te) {
-      takeScreenshot(Constants.SCREENSHOT_PATH, driver);
+      // takeScreenshot(settings.getScreenshotPath(), driver);
       LOGGER.error("waitForPageLoad().TimeoutException == {} - {}", te.getCause(), te.getMessage());
     }
   }
