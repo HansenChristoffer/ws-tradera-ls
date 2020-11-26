@@ -8,7 +8,7 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import se.sogeti.app.config.Constants;
+import se.sogeti.app.config.Settings;
 import se.sogeti.app.drivers.DriverManager;
 import se.sogeti.app.scrapers.BaseScraper;
 import se.sogeti.app.scrapers.LinkScraper;
@@ -20,13 +20,13 @@ public class App {
 	private static Set<Thread> threads = new HashSet<>();
 
 	public static void main(String[] args) {
-		Constants.init();
 		app();
 	}
 
 	private static void app() {
 		try {
-			linkScraperTest();
+			Settings settings = Settings.getInstance();
+			settings.updateSettings();
 		} catch (Exception e) {
 			LOGGER.error("app.Exception == {}", e.getMessage());
 		}
