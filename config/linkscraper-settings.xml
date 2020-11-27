@@ -1,26 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE properties SYSTEM "http://java.sun.com/dtd/properties.dtd">
 <properties>
-<comment>Modified</comment>
-<entry key="active_call_time_of_day">12:00:00</entry>
-<entry key="active_call_timeout">120</entry>
-<entry key="api_url">https://webscraperapi-1606300858222.azurewebsites.net</entry>
-<entry key="api_version">1.0</entry>
-<entry key="base_url">https://www.tradera.com</entry>
-<entry key="button_cookie">button(cookies)</entry>
-<entry key="button_next">button(next)</entry>
-<entry key="driver_path">./bin/drivers/</entry>
-<entry key="driver_runner">local</entry>
-<entry key="external_user_agent">Test Agent</entry>
-<entry key="implicit_wait_timeout">5</entry>
-<entry key="internal_user_agent">LinkScraper HTTPClient JDK-11</entry>
-<entry key="is_scheduled">false</entry>
-<entry key="lastLoaded">2020-11-26T14:21:04.962779Z[Europe/London]</entry>
-<entry key="page_load_timeout">60</entry>
-<entry key="screenshot_path">./data/screenshots/</entry>
-<entry key="select_link">select(Link)</entry>
-<entry key="select_page_loaded">select(pageLoaded)</entry>
-<entry key="select_zero_data">select(zeroData)</entry>
-<entry key="time_format_pattern">timeFormat()</entry>
-<entry key="time_zone_id">Europe/London</entry>
+    <entry key="api_url">https://webscraperapi-1606300858222.azurewebsites.net</entry>
 </properties>
