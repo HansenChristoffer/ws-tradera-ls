@@ -30,15 +30,15 @@ public class Settings {
     // Misc
     private static final Logger LOGGER = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass().getName());
     private static volatile Settings instance = null;
-    private static final String SETTINGS_FILE_PATH = "./config/linkscraper-settings.xml";
 
     // DEFAULTS
     private static final String DEFAULT_BASE_URL = "https://www.tradera.com";
-    private static final String DEFAULT_API_URL = "http://localhost:8080";
+    private static final String DEFAULT_API_URL = "http://192.168.0.145:8080";
     private static final String DEFAULT_FILTER_URL = "?sortBy=AddedOn&sellerType=Private";
     private static final String DEFAULT_DRIVER_RUNNER = "local";
     private static final String DEFAULT_DRIVERS_PATH = "./bin/drivers/";
     private static final String DEFAULT_SCREENSHOT_PATH = "./data/screenshots/";
+    private static final String DEFAULT_CONFIG_PATH = "./config/";
     private static final String DEFAULT_INTERNAL_USER_AGENT = "Scraper HttpClient JDK11+";
     private static final String DEFAULT_EXTERNAL_USER_AGENT = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.75 Safari/537.36";
     private static final long DEFAULT_PAGE_LOAD_TIMEOUT = 45;
@@ -73,6 +73,7 @@ public class Settings {
     private String driverRunner = DEFAULT_DRIVER_RUNNER;
     private String driverPath = DEFAULT_DRIVERS_PATH;
     private String screenshotPath = DEFAULT_SCREENSHOT_PATH;
+    private String configPath = DEFAULT_CONFIG_PATH;
 
     private String internalUserAgent = DEFAULT_INTERNAL_USER_AGENT;
     private String externalUserAgent = DEFAULT_EXTERNAL_USER_AGENT;
@@ -94,6 +95,8 @@ public class Settings {
     private String activeCallTimeOfDay = DEFAULT_ACTIVE_TIME_OF_DAY;
 
     private ZonedDateTime dateTimeNow;
+
+    private static final String SETTINGS_FILE_PATH = DEFAULT_CONFIG_PATH.concat("linkscraper-settings.xml");
 
     private Settings() {
         initFileStructure();
@@ -137,8 +140,12 @@ public class Settings {
             internalUserAgent = prop.getProperty("internal_user_agent");
             externalUserAgent = prop.getProperty("external_user_agent");
 
-            pageLoadTimeout = Long.valueOf(prop.getProperty("page_load_timeout"));
-            implicitWaitTimeout = Long.valueOf(prop.getProperty("implicit_wait_timeout"));
+            pageLoadTimeout = prop.getProperty("page_load_timeout") != null
+                    ? Long.valueOf(prop.getProperty("page_load_timeout"))
+                    : DEFAULT_PAGE_LOAD_TIMEOUT;
+            implicitWaitTimeout = prop.getProperty("implicit_wait_timeout") != null
+                    ? Long.valueOf(prop.getProperty("implicit_wait_timeout"))
+                    : DEFAULT_IMPLICIT_WAIT_TIMEOUT;
 
             buttonNext = prop.getProperty("button_next");
             buttonCookie = prop.getProperty("button_cookie");
@@ -146,19 +153,25 @@ public class Settings {
             selectZeroData = prop.getProperty("select_zero_data");
             selectPageLoaded = prop.getProperty("select_page_loaded");
 
-            isScheduled = Boolean.valueOf(prop.getProperty("is_scheduled"));
-            activeCallTimeout = Long.valueOf(prop.getProperty("active_call_timeout"));
+            isScheduled = Boolean.parseBoolean(prop.getProperty("is_scheduled"));
+
+            activeCallTimeout = prop.getProperty("active_call_timeout") != null
+                    ? Long.valueOf(prop.getProperty("active_call_timeout"))
+                    : DEFAULT_ACTIVE_CALL_TIMEOUT;
             activeCallTimeOfDay = prop.getProperty("active_call_time_of_day");
 
             timeFormatPattern = prop.getProperty("time_format_pattern");
-            timeZoneId = prop.getProperty("time_zone_id");
+            timeZoneId = prop.getProperty("time_zone_id") != null ? prop.getProperty("time_zone_id")
+                    : DEFAULT_TIME_ZONE_ID;
             dateTimeNow = ZonedDateTime.now(ZoneId.of(timeZoneId));
 
             prop.setProperty("lastLoaded", dateTimeNow.toString());
+
             fis.close();
 
             FileOutputStream fos = new FileOutputStream(new File(SETTINGS_FILE_PATH));
             prop.storeToXML(fos, "Modified");
+
             fos.close();
 
             LOGGER.info("Initilization complete!");
@@ -253,6 +266,8 @@ public class Settings {
     private void initFileStructure() {
         File fScs = new File(getScreenshotPath());
         File fDrv = new File(getDriverPath());
+        File fCnf = new File(getConfigPath());
+        File fLss = new File(SETTINGS_FILE_PATH);
 
         if (!fScs.exists()) {
             LOGGER.info("fScs not exist");
@@ -263,6 +278,63 @@ public class Settings {
             LOGGER.info("fDrv not exist");
             fDrv.mkdirs();
         }
+
+        if (!fCnf.exists()) {
+            LOGGER.info("fCnf not exist");
+            fCnf.mkdirs();
+        }
+
+        if (!fLss.exists()) {
+            LOGGER.info("FLss not exist");
+            createDefaultSettingsFile();
+        }
+    }
+
+    private void createDefaultSettingsFile() {
+        Properties prop = getSortedPropertiesInstance();
+
+        FileOutputStream fos;
+        try {
+            File f = new File(SETTINGS_FILE_PATH);
+            f.setWritable(true);
+            f.setReadable(true);
+            f.createNewFile();
+
+            fos = new FileOutputStream(f);
+            dateTimeNow = ZonedDateTime.now(ZoneId.of(DEFAULT_TIME_ZONE_ID));
+
+            prop.setProperty("base_url", DEFAULT_BASE_URL);
+            prop.setProperty("api_url", DEFAULT_API_URL);
+            prop.setProperty("filter_url", DEFAULT_FILTER_URL);
+            prop.setProperty("driver_runner", DEFAULT_DRIVER_RUNNER);
+            prop.setProperty("drivers_path", DEFAULT_DRIVERS_PATH);
+            prop.setProperty("screenshot_path", DEFAULT_SCREENSHOT_PATH);
+            prop.setProperty("internal_user_agent", DEFAULT_INTERNAL_USER_AGENT);
+            prop.setProperty("external_user_agent", DEFAULT_EXTERNAL_USER_AGENT);
+            prop.setProperty("page_load_timeout", String.valueOf(DEFAULT_PAGE_LOAD_TIMEOUT));
+            prop.setProperty("implicit_wait_timeout", String.valueOf(DEFAULT_IMPLICIT_WAIT_TIMEOUT));
+            prop.setProperty("button_next", String.valueOf(DEFAULT_BUTTON_NEXT));
+            prop.setProperty("button_cookie", String.valueOf(DEFAULT_BUTTON_COOKIE));
+            prop.setProperty("select_link", String.valueOf(DEFAULT_SELECT_LINK));
+            prop.setProperty("select_zero_data", String.valueOf(DEFAULT_SELECT_ZERO_DATA));
+            prop.setProperty("select_page_loaded", String.valueOf(DEFAULT_SELECT_PAGE_LOADED));
+            prop.setProperty("is_scheduled", String.valueOf(DEFAULT_IS_SCHEDULED));
+            prop.setProperty("active_call_timeout", String.valueOf(DEFAULT_ACTIVE_CALL_TIMEOUT));
+            prop.setProperty("active_call_time_of_day", String.valueOf(DEFAULT_ACTIVE_TIME_OF_DAY));
+            prop.setProperty("time_format_pattern", String.valueOf(DEFAULT_TIME_FORMAT_PATTERN));
+            prop.setProperty("time_zone_id", String.valueOf(DEFAULT_TIME_ZONE_ID));
+            prop.setProperty("lastLoaded", dateTimeNow.toString());
+
+            prop.storeToXML(fos, "Modified");
+            fos.close();
+        } catch (InvalidPropertiesFormatException e) {
+            LOGGER.error("Error occured loading the properties file", e);
+        } catch (FileNotFoundException e) {
+            LOGGER.error("Error occured loading the properties file", e);
+        } catch (IOException e) {
+            LOGGER.error("Error occured loading the properties file", e);
+        }
+
     }
 
     public String getBaseUrl() {
@@ -319,6 +391,14 @@ public class Settings {
 
     public void setScreenshotPath(String screenshotPath) {
         this.screenshotPath = screenshotPath;
+    }
+
+    public String getConfigPath() {
+        return this.configPath;
+    }
+
+    public void setConfigPath(String configPath) {
+        this.configPath = configPath;
     }
 
     public String getInternalUserAgent() {
@@ -450,9 +530,9 @@ public class Settings {
         return "{" + " baseUrl='" + getBaseUrl() + "'" + ", filterUrl='" + getFilterUrl() + "'" + ", apiURL='"
                 + getApiURL() + "'" + ", apiVersion='" + getApiVersion() + "'" + ", driverRunner='" + getDriverRunner()
                 + "'" + ", driverPath='" + getDriverPath() + "'" + ", screenshotPath='" + getScreenshotPath() + "'"
-                + ", internalUserAgent='" + getInternalUserAgent() + "'" + ", externalUserAgent='"
-                + getExternalUserAgent() + "'" + ", pageLoadTimeout='" + getPageLoadTimeout() + "'"
-                + ", implicitWaitTimeout='" + getImplicitWaitTimeout() + "'" + ", timeFormatPattern='"
+                + ", configPath='" + getConfigPath() + "'" + ", internalUserAgent='" + getInternalUserAgent() + "'"
+                + ", externalUserAgent='" + getExternalUserAgent() + "'" + ", pageLoadTimeout='" + getPageLoadTimeout()
+                + "'" + ", implicitWaitTimeout='" + getImplicitWaitTimeout() + "'" + ", timeFormatPattern='"
                 + getTimeFormatPattern() + "'" + ", timeZoneId='" + getTimeZoneId() + "'" + ", buttonNext='"
                 + getButtonNext() + "'" + ", buttonCookie='" + getButtonCookie() + "'" + ", selectLink='"
                 + getSelectLink() + "'" + ", selectZeroData='" + getSelectZeroData() + "'" + ", selectPageLoaded='"

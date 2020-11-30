@@ -65,15 +65,17 @@ public class App {
 				boolean b = Boolean.parseBoolean(DATABASE.callGet(settings.getApiURL().concat("/api/status/isActive")));
 
 				if (b && tasks.containsKey("ScrapeTask") && !ThreadExecutor.contains("ScrapeTask")) {
-					LOGGER.info(
-							"Advisable conditions! {\n\tisActive == {}\n\tTask exists == {}\n\tTask isRunning == {}\n}\n",
-							b, tasks.containsKey("ScrapeTask"), ThreadExecutor.contains("ScrapeTask"));
+					// LOGGER.info(
+					// "Advisable conditions! {\n\tisActive == {}\n\tTask exists == {}\n\tTask
+					// isRunning == {}\n}\n",
+					// b, tasks.containsKey("ScrapeTask"), ThreadExecutor.contains("ScrapeTask"));
 					executeTask("ScrapeTask");
 
 				} else {
-					LOGGER.info(
-							"Inadvisable conditions! {\n\tisActive == {}\n\tTask exists == {}\n\tTask isRunning == {}\n}\n",
-							b, tasks.containsKey("ScrapeTask"), ThreadExecutor.contains("ScrapeTask"));
+					// LOGGER.info(
+					// "Inadvisable conditions! {\n\tisActive == {}\n\tTask exists == {}\n\tTask
+					// isRunning == {}\n}\n",
+					// b, tasks.containsKey("ScrapeTask"), ThreadExecutor.contains("ScrapeTask"));
 				}
 
 			} catch (Exception e) {
