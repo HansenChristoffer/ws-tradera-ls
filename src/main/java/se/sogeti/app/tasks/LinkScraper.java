@@ -1,4 +1,4 @@
-package se.sogeti.app.scrapers;
+package se.sogeti.app.tasks;
 
 import java.io.File;
 import java.io.IOException;
@@ -31,16 +31,19 @@ import se.sogeti.app.drivers.DriverFactory;
 import se.sogeti.app.drivers.DriverManager;
 import se.sogeti.app.models.dto.LinkDTO;
 
-public class LinkScraper implements Runnable, BaseScraper {
+public class LinkScraper extends BaseTask {
 
   public static final Logger LOGGER = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass().getName());
   private final Settings settings = Settings.getInstance();
 
-  private volatile boolean isRunning = true;
   private final Database database = new Database();
 
   private Set<LinkDTO> fetchedLinks = new HashSet<>();
   private Set<LinkDTO> formerLinks = new HashSet<>();
+
+  public LinkScraper(long n, String id) {
+    super(n, id);
+  }
 
   @Override
   public void run() {
@@ -54,7 +57,7 @@ public class LinkScraper implements Runnable, BaseScraper {
           .click();
       LOGGER.info("Closed \"accept cookie popup\" window!");
 
-      while (isRunning) {
+      while (Boolean.parseBoolean(database.callGet(settings.getApiURL().concat("/api/status/isActive")))) {
         LOGGER.info("URL == {}", driver.getCurrentUrl());
         Document doc = Jsoup.parse(driver.getPageSource());
 
@@ -105,16 +108,13 @@ public class LinkScraper implements Runnable, BaseScraper {
 
     } catch (InterruptedException ie) {
       LOGGER.error("run().InterruptedException == {}", ie.getMessage());
-      kill();
       DriverManager.closeDriver();
       Thread.currentThread().interrupt();
     } catch (Exception e) {
       LOGGER.error("run().Exception == {}", e.getMessage());
-      kill();
       DriverManager.closeDriver();
     } finally {
       LOGGER.info("Elapsed time: {}s", (System.currentTimeMillis() - elapsedTime) / 1000);
-      kill();
       DriverManager.closeDriver();
     }
   }
@@ -177,13 +177,6 @@ public class LinkScraper implements Runnable, BaseScraper {
       // takeScreenshot(settings.getScreenshotPath(), driver);
       LOGGER.error("waitForPageLoad().TimeoutException == {} - {}", te.getCause(), te.getMessage());
     }
-  }
-
-  // Kills the scraper by telling all the loops to stop. Garbage collector will
-  // handle the thread
-  @Override
-  public void kill() {
-    isRunning = false;
   }
 
 }
