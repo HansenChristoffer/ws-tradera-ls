@@ -62,7 +62,8 @@ public class App {
 				// How long it should wait until asking API if it should execute its task(s)
 				sleep(5);
 
-				boolean b = Boolean.parseBoolean(DATABASE.callGet(settings.getApiURL().concat("/api/status/isActive")));
+				boolean b = Boolean
+						.parseBoolean(DATABASE.callGet(settings.getApiURL().concat("/api/status/isActive?value=LS")));
 
 				if (b && tasks.containsKey("ScrapeTask") && !ThreadExecutor.contains("ScrapeTask")) {
 					// LOGGER.info(

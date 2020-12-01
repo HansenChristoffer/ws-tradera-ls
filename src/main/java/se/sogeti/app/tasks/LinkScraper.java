@@ -57,7 +57,7 @@ public class LinkScraper extends BaseTask {
           .click();
       LOGGER.info("Closed \"accept cookie popup\" window!");
 
-      while (Boolean.parseBoolean(database.callGet(settings.getApiURL().concat("/api/status/isActive")))) {
+      while (Boolean.parseBoolean(database.callGet(settings.getApiURL().concat("/api/status/isActive?value=LS")))) {
         LOGGER.info("URL == {}", driver.getCurrentUrl());
         Document doc = Jsoup.parse(driver.getPageSource());
 
