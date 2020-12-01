@@ -1,7 +1,6 @@
 package se.sogeti.app.controllers;
 
 import java.lang.invoke.MethodHandles;
-import java.lang.reflect.Type;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
@@ -22,58 +21,46 @@ import com.google.gson.reflect.TypeToken;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import se.sogeti.app.config.Constants;
+import se.sogeti.app.config.Settings;
 import se.sogeti.app.drivers.HttpClientSingleton;
 import se.sogeti.app.models.dto.CategoryDTO;
 import se.sogeti.app.models.dto.LinkDTO;
 
-public class Controller<T> {
+public class Controller {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass().getName());
     private final Gson gson;
 
     private final HttpClient client = HttpClientSingleton.getInstance();
+    private final Settings settings = Settings.getInstance();
 
     public Controller() {
         this.gson = new GsonBuilder().setLenient().create();
     }
 
     public CategoryDTO getOpenCategory() {
-        return gson.fromJson(callGet("http://".concat(Constants.databaseIp).concat(":").concat(Constants.databasePort)
-                .concat("/api/categories/open")), CategoryDTO.class);
+        return gson.fromJson(callGet(settings.getApiURL().concat("/api/categories/open")), CategoryDTO.class);
     }
 
-    public Set<T> postMultiple(Set<T> objects, String uri) {
-        Set<T> responseObjects = new HashSet<>();
+    public Set<LinkDTO> postMultiple(Set<LinkDTO> objects, String uri) {
+        Set<LinkDTO> responseObjects = new HashSet<>();
 
         try {
             String bodyJson = gson.toJson(objects);
             LOGGER.info("Objects size == {}", objects.size());
 
             HttpRequest request = HttpRequest.newBuilder().POST(BodyPublishers.ofString(bodyJson)).uri(URI.create(uri))
-                    .header("Content-Type", "application/json").header("User-Agent", Constants.INTERNAL_USER_AGENT)
+                    .header("Content-Type", "application/json").header("User-Agent", settings.getInternalUserAgent())
                     .build();
-
-            Type listType;
-            String className = objects.toArray()[0].getClass().getName();
-
-            if (className.contains("Link")) {
-                listType = new TypeToken<Set<LinkDTO>>() {
-                }.getType();
-            } else if (className.contains("Category")) {
-                listType = new TypeToken<Set<CategoryDTO>>() {
-                }.getType();
-            } else {
-                listType = new TypeToken<Set<Object>>() {
-                }.getType();
-            }
 
             CompletableFuture<HttpResponse<String>> response = client.sendAsync(request,
                     HttpResponse.BodyHandlers.ofString());
 
             response.join();
 
-            responseObjects = gson.fromJson(response.thenApply(HttpResponse::body).get(5, TimeUnit.SECONDS), listType);
+            responseObjects = gson.fromJson(response.thenApply(HttpResponse::body).get(5, TimeUnit.SECONDS),
+                    new TypeToken<Set<LinkDTO>>() {
+                    }.getType());
             Thread.sleep(500);
         } catch (InterruptedException e) {
             LOGGER.error("postMultiple.InterruptedException == {}", e.getMessage());
@@ -86,24 +73,25 @@ public class Controller<T> {
     }
 
     public String getPublished(String objectNumber) {
-        return JsonParser.parseString(callGet(Constants.BASE_URL.concat("/item/").concat(objectNumber).concat(".json")))
-                .getAsJsonObject().get("itemDetails").getAsJsonObject().get("startDate").getAsString()
-                .concat("[Europe/Paris]");
+        return JsonParser
+                .parseString(callGet(settings.getBaseUrl().concat("/item/").concat(objectNumber).concat(".json")))
+                .getAsJsonObject().get("itemDetails").getAsJsonObject().get("startDate").getAsString().concat("[")
+                .concat(settings.getTimeZoneId()).concat("]");
     }
 
     public String callGet(String href) {
         HttpRequest request = HttpRequest.newBuilder().GET().uri(URI.create(href))
-                .setHeader("User-Agent", Constants.EXTERNAL_USER_AGENT).build();
+                .setHeader("User-Agent", settings.getExternalUserAgent()).build();
 
         CompletableFuture<HttpResponse<String>> response = client.sendAsync(request,
                 HttpResponse.BodyHandlers.ofString());
 
         response.join();
 
-        String bodyJson = "";
+        String body = "";
 
         try {
-            bodyJson = response.thenApply(HttpResponse::body).get(10, TimeUnit.SECONDS);
+            body = response.thenApply(HttpResponse::body).get(10, TimeUnit.SECONDS);
         } catch (InterruptedException ie) {
             LOGGER.error("callGet.InterruptedException == {}", ie.getMessage());
             Thread.currentThread().interrupt();
@@ -113,7 +101,7 @@ public class Controller<T> {
             LOGGER.error("callGet.TimeoutException == {}", te.getMessage());
         }
 
-        return bodyJson;
+        return body;
     }
 
 }

@@ -4,20 +4,21 @@ import java.util.Set;
 
 import se.sogeti.app.controllers.Controller;
 import se.sogeti.app.models.dto.CategoryDTO;
+import se.sogeti.app.models.dto.LinkDTO;
 
-public class Database<T> {
+public class Database {
 
-    private Controller<T> controller;
+    private Controller controller;
 
     public Database() {
-        this.controller = new Controller<>();
+        this.controller = new Controller();
     }
 
     public CategoryDTO fetchOpenCategory() {
         return controller.getOpenCategory();
     }
 
-    public Set<T> postMultiple(Set<T> objects, String uri) {
+    public Set<LinkDTO> postMultiple(Set<LinkDTO> objects, String uri) {
         return controller.postMultiple(objects, uri);
     }
 
