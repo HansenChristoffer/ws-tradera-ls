@@ -32,13 +32,14 @@ public class Settings {
     private static volatile Settings instance = null;
 
     // DEFAULTS
+    private static final String DEFAULT_WORKING_DIRECTORY = System.getProperty("user.dir");
     private static final String DEFAULT_BASE_URL = "https://www.tradera.com";
     private static final String DEFAULT_API_URL = "http://192.168.0.145:8080";
     private static final String DEFAULT_FILTER_URL = "?sortBy=AddedOn&sellerType=Private";
     private static final String DEFAULT_DRIVER_RUNNER = "local";
-    private static final String DEFAULT_DRIVERS_PATH = "./bin/drivers/";
-    private static final String DEFAULT_SCREENSHOT_PATH = "./data/screenshots/";
-    private static final String DEFAULT_CONFIG_PATH = "./config/";
+    private static final String DEFAULT_DRIVERS_PATH = "/usr/bin/chromedriver";
+    private static final String DEFAULT_SCREENSHOT_PATH = DEFAULT_WORKING_DIRECTORY + "/data/screenshots/";
+    private static final String DEFAULT_CONFIG_PATH = DEFAULT_WORKING_DIRECTORY + "/config/";
     private static final String DEFAULT_INTERNAL_USER_AGENT = "Scraper HttpClient JDK11+";
     private static final String DEFAULT_EXTERNAL_USER_AGENT = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.75 Safari/537.36";
     private static final long DEFAULT_PAGE_LOAD_TIMEOUT = 45;
@@ -135,7 +136,7 @@ public class Settings {
 
             driverRunner = prop.getProperty("driver_runner");
             driverPath = prop.getProperty("driver_path");
-            screenshotPath = prop.getProperty("screenshot_path");
+            screenshotPath = DEFAULT_WORKING_DIRECTORY.concat(prop.getProperty("screenshot_path"));
 
             internalUserAgent = prop.getProperty("internal_user_agent");
             externalUserAgent = prop.getProperty("external_user_agent");
@@ -265,7 +266,7 @@ public class Settings {
 
     private void initFileStructure() {
         File fScs = new File(getScreenshotPath());
-        File fDrv = new File(getDriverPath());
+        // File fDrv = new File(getDriverPath());
         File fCnf = new File(getConfigPath());
         File fLss = new File(SETTINGS_FILE_PATH);
 
@@ -274,10 +275,10 @@ public class Settings {
             fScs.mkdirs();
         }
 
-        if (!fDrv.exists()) {
-            LOGGER.info("fDrv not exist");
-            fDrv.mkdirs();
-        }
+        // if (!fDrv.exists()) {
+        // LOGGER.info("fDrv not exist");
+        // fDrv.mkdirs();
+        // }
 
         if (!fCnf.exists()) {
             LOGGER.info("fCnf not exist");

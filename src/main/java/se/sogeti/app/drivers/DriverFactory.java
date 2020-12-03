@@ -46,7 +46,7 @@ public class DriverFactory {
         final String osName = System.getProperty("os.name");
 
         if (osName.contains("Linux")) {
-            System.setProperty("webdriver.chrome.driver", settings.getDriverPath().concat("chromedriver_linux"));
+            System.setProperty("webdriver.chrome.driver", settings.getDriverPath());
         } else if (osName.contains("Windows")) {
             System.setProperty("webdriver.chrome.driver", settings.getDriverPath().concat("chromedriver_win.exe"));
         } else if (osName.contains("Mac")) {
@@ -57,7 +57,8 @@ public class DriverFactory {
 
         ChromeOptions options = new ChromeOptions();
         options.setHeadless(true);
-        options.addArguments("--disable-gpu", "--blink-settings=imagesEnabled=false");
+        options.addArguments("--disable-gpu", "--blink-settings=imagesEnabled=false", "--whitelisted-ips",
+                "--no-sandbox", "--disable-extensions");
 
         HashMap<String, Object> images = new HashMap<>();
         images.put("images", 2);
