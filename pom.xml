@@ -125,8 +125,8 @@
         <groupId>com.microsoft.azure</groupId>
         <artifactId>azure-webapp-maven-plugin</artifactId>
         <configuration>
-          <resourceGroup>rg-wslsservices</resourceGroup>
-          <appName>ws-ls5014</appName>
+          <resourceGroup>rg-scrapeservices</resourceGroup>
+          <appName>ws-ls1001</appName>
           <pricingTier>F1</pricingTier>
           <region>northeurope</region>
           <deployment>

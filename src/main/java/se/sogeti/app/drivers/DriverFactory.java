@@ -44,20 +44,19 @@ public class DriverFactory {
     }
 
     private static WebDriver createLocalChromeDriver() {
-        final String osName = System.getProperty("os.name");
+        // final String osName = System.getProperty("os.name");
 
-        if (osName.contains("Linux")) {
-            System.setProperty("webdriver.chrome.driver", App.class.getClassLoader()
-                    .getResource(settings.getDriverPath().concat("chromedriver_linux")).getPath());
-        } else if (osName.contains("Windows")) {
-            System.setProperty("webdriver.chrome.driver", App.class.getClassLoader()
-                    .getResource(settings.getDriverPath().concat("chromedriver_win.exe")).getPath());
-        } else if (osName.contains("Mac")) {
-            System.setProperty("webdriver.chrome.driver", App.class.getClassLoader()
-                    .getResource(settings.getDriverPath().concat("chromedriver_mac")).getPath());
-        } else {
-            LOGGER.error("Non compatible operative system!");
-        }
+        // if (osName.contains("Linux")) {
+        // System.setProperty("webdriver.chrome.driver", settings.getDriverPath());
+        // } else if (osName.contains("Windows")) {
+        // System.setProperty("webdriver.chrome.driver", App.class.getClassLoader()
+        // .getResource(settings.getDriverPath().concat("chromedriver_win.exe")).getPath());
+        // } else if (osName.contains("Mac")) {
+        // System.setProperty("webdriver.chrome.driver", App.class.getClassLoader()
+        // .getResource(settings.getDriverPath().concat("chromedriver_mac")).getPath());
+        // } else {
+        // LOGGER.error("Non compatible operative system!");
+        // }
 
         ChromeOptions options = new ChromeOptions();
         options.setHeadless(true);
