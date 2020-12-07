@@ -118,7 +118,6 @@
                 </transformer>
               </transformers>
             </configuration>
-            s
           </execution>
         </executions>
       </plugin>
