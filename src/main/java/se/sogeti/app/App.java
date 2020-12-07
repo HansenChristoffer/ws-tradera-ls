@@ -1,7 +1,6 @@
 package se.sogeti.app;
 
 import java.lang.invoke.MethodHandles;
-import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -13,6 +12,7 @@ import org.slf4j.LoggerFactory;
 import se.sogeti.app.config.Settings;
 import se.sogeti.app.database.Database;
 import se.sogeti.app.tasks.BaseTask;
+import se.sogeti.app.tasks.LinkScraper;
 import se.sogeti.app.tasks.ThreadExecutor;
 
 public class App {
@@ -33,15 +33,14 @@ public class App {
 	}
 
 	private static void app() {
-
 		settings = Settings.getInstance();
 		settings.updateSettings();
 
 		// Adds the Link scraper as a task for ThreadExecutor to run. The Integer
 		// argument is not in use yet, the 10 does nothing as of yet.
-		// addTask("ScrapeTask", new LinkScraper(10, "ScrapeTask"));
+		addTask("ScrapeTask", new LinkScraper(10, "ScrapeTask"));
 
-		// commenceTasking();
+		commenceTasking();
 	}
 
 	/**
