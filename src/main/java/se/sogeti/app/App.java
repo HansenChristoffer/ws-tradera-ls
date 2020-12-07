@@ -33,19 +33,14 @@ public class App {
 	}
 
 	private static void app() {
-		try {
-			settings = Settings.getInstance();
-			settings.updateSettings();
+		settings = Settings.getInstance();
+		settings.updateSettings();
 
-			// Adds the Link scraper as a task for ThreadExecutor to run. The Integer
-			// argument is not in use yet, the 10 does nothing as of yet.
-			addTask("ScrapeTask", new LinkScraper(10, "ScrapeTask"));
+		// Adds the Link scraper as a task for ThreadExecutor to run. The Integer
+		// argument is not in use yet, the 10 does nothing as of yet.
+		addTask("ScrapeTask", new LinkScraper(10, "ScrapeTask"));
 
-			commenceTasking();
-
-		} catch (Exception e) {
-			LOGGER.error("app.Exception == {}", e.getMessage());
-		}
+		commenceTasking();
 	}
 
 	/**
@@ -60,9 +55,10 @@ public class App {
 		while (!killAll) {
 			try {
 				// How long it should wait until asking API if it should execute its task(s)
-				sleep(5);
+				sleep(30);
 
-				boolean b = Boolean.parseBoolean(DATABASE.callGet(settings.getApiURL().concat("/api/status/isActive")));
+				boolean b = Boolean
+						.parseBoolean(DATABASE.callGet(settings.getApiURL().concat("/api/status/isActive?value=LS")));
 
 				if (b && tasks.containsKey("ScrapeTask") && !ThreadExecutor.contains("ScrapeTask")) {
 					// LOGGER.info(

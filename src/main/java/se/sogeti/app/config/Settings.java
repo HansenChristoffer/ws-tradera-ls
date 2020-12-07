@@ -33,10 +33,10 @@ public class Settings {
 
     // DEFAULTS
     private static final String DEFAULT_BASE_URL = "https://www.tradera.com";
-    private static final String DEFAULT_API_URL = "http://192.168.0.145:8080";
+    private static final String DEFAULT_API_URL = "https://webscraperapi-1606300858222.azurewebsites.net";
     private static final String DEFAULT_FILTER_URL = "?sortBy=AddedOn&sellerType=Private";
     private static final String DEFAULT_DRIVER_RUNNER = "local";
-    private static final String DEFAULT_DRIVERS_PATH = "./bin/drivers/";
+    private static final String DEFAULT_DRIVERS_PATH = "/usr/bin/chromedriver";
     private static final String DEFAULT_SCREENSHOT_PATH = "./data/screenshots/";
     private static final String DEFAULT_CONFIG_PATH = "./config/";
     private static final String DEFAULT_INTERNAL_USER_AGENT = "Scraper HttpClient JDK11+";
@@ -265,18 +265,13 @@ public class Settings {
 
     private void initFileStructure() {
         File fScs = new File(getScreenshotPath());
-        File fDrv = new File(getDriverPath());
+        // File fDrv = new File(getDriverPath());
         File fCnf = new File(getConfigPath());
         File fLss = new File(SETTINGS_FILE_PATH);
 
         if (!fScs.exists()) {
             LOGGER.info("fScs not exist");
             fScs.mkdirs();
-        }
-
-        if (!fDrv.exists()) {
-            LOGGER.info("fDrv not exist");
-            fDrv.mkdirs();
         }
 
         if (!fCnf.exists()) {
@@ -291,16 +286,14 @@ public class Settings {
     }
 
     private void createDefaultSettingsFile() {
+        File f = new File(SETTINGS_FILE_PATH);
         Properties prop = getSortedPropertiesInstance();
 
-        FileOutputStream fos;
-        try {
-            File f = new File(SETTINGS_FILE_PATH);
+        try (FileOutputStream fos = new FileOutputStream(f)) {
             f.setWritable(true);
             f.setReadable(true);
             f.createNewFile();
 
-            fos = new FileOutputStream(f);
             dateTimeNow = ZonedDateTime.now(ZoneId.of(DEFAULT_TIME_ZONE_ID));
 
             prop.setProperty("base_url", DEFAULT_BASE_URL);
@@ -325,8 +318,7 @@ public class Settings {
             prop.setProperty("time_zone_id", String.valueOf(DEFAULT_TIME_ZONE_ID));
             prop.setProperty("lastLoaded", dateTimeNow.toString());
 
-            prop.storeToXML(fos, "Modified");
-            fos.close();
+            prop.storeToXML(fos, "DEFAULT");
         } catch (InvalidPropertiesFormatException e) {
             LOGGER.error("Error occured loading the properties file", e);
         } catch (FileNotFoundException e) {

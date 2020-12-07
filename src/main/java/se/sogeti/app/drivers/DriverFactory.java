@@ -13,6 +13,7 @@ import org.openqa.selenium.remote.RemoteWebDriver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import se.sogeti.app.App;
 import se.sogeti.app.config.Settings;
 
 public class DriverFactory {
@@ -43,21 +44,24 @@ public class DriverFactory {
     }
 
     private static WebDriver createLocalChromeDriver() {
-        final String osName = System.getProperty("os.name");
+        // final String osName = System.getProperty("os.name");
 
-        if (osName.contains("Linux")) {
-            System.setProperty("webdriver.chrome.driver", settings.getDriverPath().concat("chromedriver_linux"));
-        } else if (osName.contains("Windows")) {
-            System.setProperty("webdriver.chrome.driver", settings.getDriverPath().concat("chromedriver_win.exe"));
-        } else if (osName.contains("Mac")) {
-            System.setProperty("webdriver.chrome.driver", settings.getDriverPath().concat("chromedriver_mac"));
-        } else {
-            LOGGER.error("Non compatible operative system!");
-        }
+        // if (osName.contains("Linux")) {
+        // System.setProperty("webdriver.chrome.driver", settings.getDriverPath());
+        // } else if (osName.contains("Windows")) {
+        // System.setProperty("webdriver.chrome.driver", App.class.getClassLoader()
+        // .getResource(settings.getDriverPath().concat("chromedriver_win.exe")).getPath());
+        // } else if (osName.contains("Mac")) {
+        // System.setProperty("webdriver.chrome.driver", App.class.getClassLoader()
+        // .getResource(settings.getDriverPath().concat("chromedriver_mac")).getPath());
+        // } else {
+        // LOGGER.error("Non compatible operative system!");
+        // }
 
         ChromeOptions options = new ChromeOptions();
         options.setHeadless(true);
-        options.addArguments("--disable-gpu", "--blink-settings=imagesEnabled=false");
+        options.addArguments("--disable-gpu", "--blink-settings=imagesEnabled=false", "--whitelisted-ips",
+                "--no-sandbox", "--disable-extensions");
 
         HashMap<String, Object> images = new HashMap<>();
         images.put("images", 2);
