@@ -36,7 +36,7 @@ public class Settings {
     private static final String DEFAULT_API_URL = "https://webscraperapi-1606300858222.azurewebsites.net";
     private static final String DEFAULT_FILTER_URL = "?sortBy=AddedOn&sellerType=Private";
     private static final String DEFAULT_DRIVER_RUNNER = "local";
-    private static final String DEFAULT_DRIVERS_PATH = "./data/drivers/";
+    private static final String DEFAULT_DRIVERS_PATH = "/drivers/";
     private static final String DEFAULT_SCREENSHOT_PATH = "./data/screenshots/";
     private static final String DEFAULT_CONFIG_PATH = "./config/";
     private static final String DEFAULT_INTERNAL_USER_AGENT = "Scraper HttpClient JDK11+";

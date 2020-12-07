@@ -8,14 +8,14 @@
     <entry key="base_url">https://www.tradera.com</entry>
     <entry key="button_cookie">//*[@id="qc-cmp2-ui"]/div[2]/div/button[2]</entry>
     <entry key="button_next">body &gt; div.site-container.bp &gt; div.site-main &gt; div.search-results-page.site-width &gt; div &gt; div &gt; div.col-md-9.col-sm-12.search-results-wrapper &gt; div.pb-3 &gt; nav &gt; ul &gt; li:nth-child(3) &gt; a</entry>
-    <entry key="driver_path">./data/drivers/</entry>
+    <entry key="driver_path">/drivers/</entry>
     <entry key="driver_runner">local</entry>
     <entry key="external_user_agent">Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.75 Safari/537.36</entry>
     <entry key="filter_url">?sortBy=AddedOn&amp;sellerType=Private</entry>
     <entry key="implicit_wait_timeout">10</entry>
     <entry key="internal_user_agent">Scraper HttpClient JDK11+</entry>
     <entry key="is_scheduled">false</entry>
-    <entry key="lastLoaded">2020-11-30T15:07:51.799149300+01:00[Europe/Paris]</entry>
+    <entry key="lastLoaded">2020-12-07T11:57:43.557597200+01:00[Europe/Paris]</entry>
     <entry key="page_load_timeout">45</entry>
     <entry key="screenshot_path">./data/screenshots/</entry>
     <entry key="select_link">a[id*=item_]</entry>
