@@ -21,10 +21,10 @@ RUN wget -q -O /tmp/chromedriver.zip https://chromedriver.storage.googleapis.com
         && chmod 755 /opt/chromedriver-$CHROME_DRIVER_VERSION \
         && ln -s /opt/chromedriver-$CHROME_DRIVER_VERSION /usr/bin/chromedriver
 
-COPY ./ ./
+COPY ./ ./home/ws
 
-RUN mvn -f /pom.xml clean package
+RUN mvn -f /home/ws/pom.xml clean package
 
 EXPOSE 4444
 
-#CMD ["java", "-jar", "/run.jar"]
+CMD ["java", "-jar", "/home/ws/target/ws-tradera-ls.jar"]
