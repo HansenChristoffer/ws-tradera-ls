@@ -4,7 +4,10 @@ import java.io.File;
 import java.io.IOException;
 import java.lang.invoke.MethodHandles;
 import java.net.MalformedURLException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.time.ZonedDateTime;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.Random;
 import java.util.Set;
@@ -47,8 +50,16 @@ public class LinkScraper extends BaseTask {
 
   @Override
   public void run() {
-    long elapsedTime = System.currentTimeMillis();
+    settings.updateSettings();
+
+    long startTime = System.currentTimeMillis();
     WebDriver driver = startDriver("chrome");
+
+    Date d = new Date();
+    DateFormat df = new SimpleDateFormat("HH:mm:ss:SSS");
+
+    d.setTime(startTime);
+    LOGGER.info("Starting task {} at {}", super.id, df.format(d));
 
     try {
       fetchAndEnterCategory(driver);
@@ -114,7 +125,9 @@ public class LinkScraper extends BaseTask {
       LOGGER.error("run().Exception == {}", e.getMessage());
       DriverManager.closeDriver();
     } finally {
-      LOGGER.info("Elapsed time: {}s", (System.currentTimeMillis() - elapsedTime) / 1000);
+      long endTime = System.currentTimeMillis();
+      d.setTime(endTime);
+      LOGGER.info("Ending task {} at {} after {} s", super.id, df.format(d), (endTime - startTime) / 1000);
       DriverManager.closeDriver();
     }
   }
