@@ -1,6 +1,7 @@
 package se.sogeti.app.controllers;
 
 import java.lang.invoke.MethodHandles;
+import java.net.ConnectException;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;

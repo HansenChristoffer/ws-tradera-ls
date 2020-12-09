@@ -33,10 +33,13 @@ public class Settings {
 
     // DEFAULTS
     private static final String DEFAULT_BASE_URL = "https://www.tradera.com";
-    private static final String DEFAULT_API_URL = "https://webscraperapi-1606300858222.azurewebsites.net";
+    // private static final String DEFAULT_API_URL =
+    // "https://webscraperapi-1606300858222.azurewebsites.net";
+    private static final String DEFAULT_API_URL = "http://192.168.0.145:8080";
     private static final String DEFAULT_FILTER_URL = "?sortBy=AddedOn&sellerType=Private";
     private static final String DEFAULT_DRIVER_RUNNER = "local";
-    private static final String DEFAULT_DRIVERS_PATH = "/usr/bin/chromedriver";
+    // private static final String DEFAULT_DRIVERS_PATH = "/usr/bin/chromedriver";
+    private static final String DEFAULT_DRIVERS_PATH = "./bin/drivers/";
     private static final String DEFAULT_SCREENSHOT_PATH = "./data/screenshots/";
     private static final String DEFAULT_CONFIG_PATH = "./config/";
     private static final String DEFAULT_INTERNAL_USER_AGENT = "Scraper HttpClient JDK11+";
@@ -289,9 +292,10 @@ public class Settings {
         File f = new File(SETTINGS_FILE_PATH);
         Properties prop = getSortedPropertiesInstance();
 
+        f.setWritable(true);
+        f.setReadable(true);
+
         try (FileOutputStream fos = new FileOutputStream(f)) {
-            f.setWritable(true);
-            f.setReadable(true);
             f.createNewFile();
 
             dateTimeNow = ZonedDateTime.now(ZoneId.of(DEFAULT_TIME_ZONE_ID));
