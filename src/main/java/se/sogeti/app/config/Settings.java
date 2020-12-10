@@ -57,7 +57,7 @@ public class Settings {
     public static final String DEFAULT_BUTTON_NEXT = "body > div.site-container.bp > div.site-main > div.search-results-page.site-width > div > div > div.col-md-9.col-sm-12.search-results-wrapper > div.pb-3 > nav > ul > li:nth-child(3) > a";
     public static final String DEFAULT_BUTTON_COOKIE = "//*[@id=\"qc-cmp2-ui\"]/div[2]/div/button[2]";
     public static final String DEFAULT_SELECT_LINK = "a[id*=item_]";
-    public static final String DEFAULT_SELECT_ZERO_DATA = "article.data-zero-result";
+    public static final String DEFAULT_SELECT_ZERO_DATA = "body > div.site-container.bp > div.site-main > div.search-results-page.site-width > div > div > div.col-md-9.col-sm-12.search-results-wrapper > div.item-card-layout.layout-grid.container.pb-4.few-results > div > article > h2";
     public static final String DEFAULT_SELECT_PAGE_LOADED = "body > div.site-container.bp > div.site-main > div.search-results-page.site-width > div > div > div.col-md-9.col-sm-12.search-results-wrapper > header > div.search-results-header__heading.row.justify-content-between.pb-3.py-md-3 > div.col-12.d-flex.align-items-center.justify-content-center.justify-content-md-start > h1";
 
     // Scheduling related

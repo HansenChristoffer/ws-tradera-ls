@@ -68,10 +68,11 @@ public class LinkScraper extends BaseTask {
           .click();
 
       while (Boolean.parseBoolean(database.callGet(settings.getApiURL().concat("/api/status/isActive?value=LS")))) {
-        LOGGER.info("Current URL == {}", driver.getCurrentUrl());
+        LOGGER.info("Entering {}", driver.getCurrentUrl());
         Document doc = Jsoup.parse(driver.getPageSource());
 
         if (doc.select(settings.getSelectZeroData()).isEmpty() && isNotErrorPage(doc)) {
+          LOGGER.info("Fetching links...");
           Elements links = doc.select(settings.getSelectLink());
 
           ZonedDateTime zdt = ZonedDateTime.parse(database.getPublished(links.get(0).attr("href").split("/")[3]));
@@ -86,6 +87,8 @@ public class LinkScraper extends BaseTask {
                 fetchedLinks.add(new LinkDTO((settings.getBaseUrl() + link.attr("href"))));
               }
             });
+
+            LOGGER.info("Done fetching!");
 
             fetchedLinks.removeAll(formerLinks);
             formerLinks.clear();
@@ -103,9 +106,11 @@ public class LinkScraper extends BaseTask {
               fetchAndEnterCategory(driver);
             }
           } else {
+            LOGGER.info("Invalid links!");
             fetchAndEnterCategory(driver);
           }
         } else {
+          LOGGER.info("Invalid links!");
           fetchAndEnterCategory(driver);
         }
       }
@@ -116,7 +121,6 @@ public class LinkScraper extends BaseTask {
       Thread.currentThread().interrupt();
     } catch (Exception e) {
       LOGGER.error("run().Exception == {}", e.getMessage());
-      DriverManager.closeDriver();
     } finally {
       long endTime = System.currentTimeMillis();
       d.setTime(endTime);
