@@ -136,7 +136,7 @@ public class LinkScraper extends BaseTask {
     formerLinks.clear();
     String url = settings.getBaseUrl().concat(database.fetchOpenCategory().getHref()).concat(settings.getFilterUrl());
     driver.get(url);
-    waitForPageLoad(settings.getSelectPageLoaded(), driver, 10);
+    waitForPageLoad(settings.getSelectPageLoaded(), driver, settings.getPageLoadTimeout());
   }
 
   private boolean isNotErrorPage(Document doc) {
