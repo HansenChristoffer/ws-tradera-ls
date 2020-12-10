@@ -47,7 +47,7 @@ public class Settings {
     private static final int DEFAULT_PAGE_LOAD_TIMEOUT = 45;
     private static final int DEFAULT_IMPLICIT_WAIT_TIMEOUT = 10;
     private static final int DEFAULT_ACTIVE_CALL_TIMEOUT = 120; // 2 seconds
-    private static final int DEFAULT_API_CALL_PAUSE_TIMER = 30;
+    private static final int DEFAULT_API_CALL_TIMER = 30;
 
     // Date & time related
     private static final String DEFAULT_TIME_FORMAT_PATTERN = ":01.1+01:00[Europe/Paris]";
@@ -90,7 +90,7 @@ public class Settings {
     private String selectPageLoaded = DEFAULT_SELECT_PAGE_LOADED;
 
     private int activeCallTimeout = DEFAULT_ACTIVE_CALL_TIMEOUT;
-    private int apiCallTimer = DEFAULT_API_CALL_PAUSE_TIMER;
+    private int apiCallTimer = DEFAULT_API_CALL_TIMER;
 
     private ZonedDateTime dateTimeNow;
 
@@ -117,12 +117,7 @@ public class Settings {
 
         File fCss = new File(SETTINGS_FILE_PATH);
 
-        if (!fCss.exists()) {
-            LOGGER.info("No settings xml file!");
-            fetchSettingsFile(fetchApiURL(DEFAULT_CONFIG_PATH.concat("DEFAULT.xml")));
-        } else {
-            fetchSettingsFile(fetchApiURL(SETTINGS_FILE_PATH));
-        }
+        fetchSettingsFile(fetchApiURL(!fCss.exists() ? DEFAULT_CONFIG_PATH.concat("DEFAULT.xml") : SETTINGS_FILE_PATH));
 
         try {
             LOGGER.info("Initilizing settings...");
@@ -167,7 +162,9 @@ public class Settings {
                     : DEFAULT_TIME_ZONE_ID;
             dateTimeNow = ZonedDateTime.now(ZoneId.of(timeZoneId));
 
-            apiCallTimer = Integer.valueOf(prop.getProperty("api_call_timer"));
+            apiCallTimer = prop.getProperty("api_call_timer") != null
+                    ? Integer.valueOf(prop.getProperty("api_call_timer"))
+                    : DEFAULT_API_CALL_TIMER;
 
             prop.setProperty("lastLoaded", dateTimeNow.toString());
 
