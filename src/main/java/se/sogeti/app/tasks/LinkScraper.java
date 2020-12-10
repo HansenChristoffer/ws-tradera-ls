@@ -66,10 +66,9 @@ public class LinkScraper extends BaseTask {
 
       new WebDriverWait(driver, 5).until(ExpectedConditions.elementToBeClickable(By.xpath(settings.getButtonCookie())))
           .click();
-      LOGGER.info("Closed \"accept cookie popup\" window!");
 
       while (Boolean.parseBoolean(database.callGet(settings.getApiURL().concat("/api/status/isActive?value=LS")))) {
-        LOGGER.info("URL == {}", driver.getCurrentUrl());
+        LOGGER.info("Current URL == {}", driver.getCurrentUrl());
         Document doc = Jsoup.parse(driver.getPageSource());
 
         if (doc.select(settings.getSelectZeroData()).isEmpty() && isNotErrorPage(doc)) {
@@ -88,24 +87,18 @@ public class LinkScraper extends BaseTask {
               }
             });
 
-            LOGGER.info("Links added, FetchedLinks.size == {}", fetchedLinks.size());
-            LOGGER.info("FormerLinks.size == {}", fetchedLinks.size());
             fetchedLinks.removeAll(formerLinks);
-
-            LOGGER.info("FormerLinks removed, FetchedLinks.size == {}", fetchedLinks.size());
-
             formerLinks.clear();
+            LOGGER.info("Sending {} LinkDTOs...", fetchedLinks.size());
             formerLinks = database.postMultiple(fetchedLinks, settings.getApiURL().concat("/api/links/all"));
-            LOGGER.info("Saved links, FormerLinks.size == {}", fetchedLinks.size());
+            LOGGER.info("Done sending!");
 
             String nextHref = "";
             nextHref = doc.select(settings.getButtonNext()).attr("href");
 
-            LOGGER.info("nextHref == {}", nextHref);
             if (!nextHref.isBlank()) {
-              LOGGER.info(" - GETTING NEW PAGE - ");
               driver.get(settings.getBaseUrl().concat(nextHref));
-              waitForPageLoad(settings.getSelectPageLoaded(), driver, 10);
+              waitForPageLoad(settings.getSelectPageLoaded(), driver, settings.getPageLoadTimeout());
             } else {
               fetchAndEnterCategory(driver);
             }

@@ -44,9 +44,9 @@ public class Settings {
     private static final String DEFAULT_CONFIG_PATH = "./config/";
     private static final String DEFAULT_INTERNAL_USER_AGENT = "Scraper HttpClient JDK11+";
     private static final String DEFAULT_EXTERNAL_USER_AGENT = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.75 Safari/537.36";
-    private static final long DEFAULT_PAGE_LOAD_TIMEOUT = 45;
-    private static final long DEFAULT_IMPLICIT_WAIT_TIMEOUT = 10;
-    private static final long DEFAULT_ACTIVE_CALL_TIMEOUT = 120; // 2 seconds
+    private static final int DEFAULT_PAGE_LOAD_TIMEOUT = 45;
+    private static final int DEFAULT_IMPLICIT_WAIT_TIMEOUT = 10;
+    private static final int DEFAULT_ACTIVE_CALL_TIMEOUT = 120; // 2 seconds
     private static final int DEFAULT_API_CALL_PAUSE_TIMER = 30;
 
     // Date & time related
@@ -77,8 +77,8 @@ public class Settings {
     private String internalUserAgent = DEFAULT_INTERNAL_USER_AGENT;
     private String externalUserAgent = DEFAULT_EXTERNAL_USER_AGENT;
 
-    private long pageLoadTimeout = DEFAULT_PAGE_LOAD_TIMEOUT;
-    private long implicitWaitTimeout = DEFAULT_IMPLICIT_WAIT_TIMEOUT;
+    private int pageLoadTimeout = DEFAULT_PAGE_LOAD_TIMEOUT;
+    private int implicitWaitTimeout = DEFAULT_IMPLICIT_WAIT_TIMEOUT;
 
     private String timeFormatPattern = DEFAULT_TIME_FORMAT_PATTERN;
     private String timeZoneId = DEFAULT_TIME_ZONE_ID;
@@ -89,7 +89,7 @@ public class Settings {
     private String selectZeroData = DEFAULT_SELECT_ZERO_DATA;
     private String selectPageLoaded = DEFAULT_SELECT_PAGE_LOADED;
 
-    private long activeCallTimeout = DEFAULT_ACTIVE_CALL_TIMEOUT;
+    private int activeCallTimeout = DEFAULT_ACTIVE_CALL_TIMEOUT;
     private int apiCallTimer = DEFAULT_API_CALL_PAUSE_TIMER;
 
     private ZonedDateTime dateTimeNow;
@@ -146,10 +146,10 @@ public class Settings {
             externalUserAgent = prop.getProperty("external_user_agent");
 
             pageLoadTimeout = prop.getProperty("page_load_timeout") != null
-                    ? Long.valueOf(prop.getProperty("page_load_timeout"))
+                    ? Integer.valueOf(prop.getProperty("page_load_timeout"))
                     : DEFAULT_PAGE_LOAD_TIMEOUT;
             implicitWaitTimeout = prop.getProperty("implicit_wait_timeout") != null
-                    ? Long.valueOf(prop.getProperty("implicit_wait_timeout"))
+                    ? Integer.valueOf(prop.getProperty("implicit_wait_timeout"))
                     : DEFAULT_IMPLICIT_WAIT_TIMEOUT;
 
             buttonNext = prop.getProperty("button_next");
@@ -159,7 +159,7 @@ public class Settings {
             selectPageLoaded = prop.getProperty("select_page_loaded");
 
             activeCallTimeout = prop.getProperty("active_call_timeout") != null
-                    ? Long.valueOf(prop.getProperty("active_call_timeout"))
+                    ? Integer.valueOf(prop.getProperty("active_call_timeout"))
                     : DEFAULT_ACTIVE_CALL_TIMEOUT;
 
             timeFormatPattern = prop.getProperty("time_format_pattern");
@@ -179,11 +179,11 @@ public class Settings {
             LOGGER.info("Initilization complete!");
             LOGGER.info("Update complete!");
         } catch (InvalidPropertiesFormatException e) {
-            LOGGER.error("Error occured loading the properties file", e);
+            LOGGER.error("updateSettings().InvalidPropertiesFormatException == {}", e.getMessage());
         } catch (FileNotFoundException e) {
-            LOGGER.error("Error occured loading the properties file", e);
+            LOGGER.error("updateSettings().FileNotFoundException == {}", e.getMessage());
         } catch (IOException e) {
-            LOGGER.error("Error occured loading the properties file", e);
+            LOGGER.error("updateSettings().IOException == {}", e.getMessage());
         }
 
     }
@@ -255,11 +255,11 @@ public class Settings {
 
             return str;
         } catch (InvalidPropertiesFormatException e) {
-            LOGGER.error("Error occured loading the properties file", e);
+            LOGGER.error("fetchApiURL().InvalidPropertiesFormatException == {}", e.getMessage());
         } catch (FileNotFoundException e) {
-            LOGGER.error("Error occured loading the properties file", e);
+            LOGGER.error("fetchApiURL().FileNotFoundException == {}", e.getMessage());
         } catch (IOException e) {
-            LOGGER.error("Error occured loading the properties file", e);
+            LOGGER.error("fetchApiURL().IOException == {}", e.getMessage());
         }
 
         return DEFAULT_API_URL;
@@ -411,27 +411,27 @@ public class Settings {
         this.externalUserAgent = externalUserAgent;
     }
 
-    public long getPageLoadTimeout() {
+    public int getPageLoadTimeout() {
         return this.pageLoadTimeout;
     }
 
-    public void setPageLoadTimeout(long pageLoadTimeout) {
+    public void setPageLoadTimeout(int pageLoadTimeout) {
         this.pageLoadTimeout = pageLoadTimeout;
     }
 
-    public long getImplicitWaitTimeout() {
+    public int getImplicitWaitTimeout() {
         return this.implicitWaitTimeout;
     }
 
-    public void setImplicitWaitTimeout(long implicitWaitTimeout) {
+    public void setImplicitWaitTimeout(int implicitWaitTimeout) {
         this.implicitWaitTimeout = implicitWaitTimeout;
     }
 
-    public long getActiveCallTimeout() {
+    public int getActiveCallTimeout() {
         return this.activeCallTimeout;
     }
 
-    public void setActiveCallTimeout(long activeCallTimeout) {
+    public void setActiveCallTimeout(int activeCallTimeout) {
         this.activeCallTimeout = activeCallTimeout;
     }
 
