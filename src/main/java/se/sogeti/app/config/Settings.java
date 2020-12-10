@@ -167,6 +167,8 @@ public class Settings {
                     : DEFAULT_TIME_ZONE_ID;
             dateTimeNow = ZonedDateTime.now(ZoneId.of(timeZoneId));
 
+            apiCallTimer = Integer.valueOf(prop.getProperty("api_call_timer"));
+
             prop.setProperty("lastLoaded", dateTimeNow.toString());
 
             fis.close();
