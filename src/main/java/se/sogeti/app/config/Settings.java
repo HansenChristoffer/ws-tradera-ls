@@ -46,12 +46,8 @@ public class Settings {
     private static final String DEFAULT_EXTERNAL_USER_AGENT = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.75 Safari/537.36";
     private static final long DEFAULT_PAGE_LOAD_TIMEOUT = 45;
     private static final long DEFAULT_IMPLICIT_WAIT_TIMEOUT = 10;
-    private static final boolean DEFAULT_IS_SCHEDULED = false; // Will NOT go by specific time of the day, instead uses
-                                                               // isActive calls with timeout
-    private static final String DEFAULT_ACTIVE_TIME_OF_DAY = "12:00"; // At what time of the day the
-                                                                      // isActive call should happened,
-                                                                      // ONLY if isScheduled == true
     private static final long DEFAULT_ACTIVE_CALL_TIMEOUT = 120; // 2 seconds
+    private static final int DEFAULT_API_CALL_PAUSE_TIMER = 30;
 
     // Date & time related
     private static final String DEFAULT_TIME_FORMAT_PATTERN = ":01.1+01:00[Europe/Paris]";
@@ -93,9 +89,8 @@ public class Settings {
     private String selectZeroData = DEFAULT_SELECT_ZERO_DATA;
     private String selectPageLoaded = DEFAULT_SELECT_PAGE_LOADED;
 
-    private boolean isScheduled = DEFAULT_IS_SCHEDULED;
     private long activeCallTimeout = DEFAULT_ACTIVE_CALL_TIMEOUT;
-    private String activeCallTimeOfDay = DEFAULT_ACTIVE_TIME_OF_DAY;
+    private int apiCallTimer = DEFAULT_API_CALL_PAUSE_TIMER;
 
     private ZonedDateTime dateTimeNow;
 
@@ -120,7 +115,14 @@ public class Settings {
     public void updateSettings() {
         LOGGER.info("Updating...");
 
-        fetchSettingsFile(fetchApiURL());
+        File fCss = new File(SETTINGS_FILE_PATH);
+
+        if (!fCss.exists()) {
+            LOGGER.info("No settings xml file!");
+            fetchSettingsFile(fetchApiURL(DEFAULT_CONFIG_PATH.concat("DEFAULT.xml")));
+        } else {
+            fetchSettingsFile(fetchApiURL(SETTINGS_FILE_PATH));
+        }
 
         try {
             LOGGER.info("Initilizing settings...");
@@ -156,12 +158,9 @@ public class Settings {
             selectZeroData = prop.getProperty("select_zero_data");
             selectPageLoaded = prop.getProperty("select_page_loaded");
 
-            isScheduled = Boolean.parseBoolean(prop.getProperty("is_scheduled"));
-
             activeCallTimeout = prop.getProperty("active_call_timeout") != null
                     ? Long.valueOf(prop.getProperty("active_call_timeout"))
                     : DEFAULT_ACTIVE_CALL_TIMEOUT;
-            activeCallTimeOfDay = prop.getProperty("active_call_time_of_day");
 
             timeFormatPattern = prop.getProperty("time_format_pattern");
             timeZoneId = prop.getProperty("time_zone_id") != null ? prop.getProperty("time_zone_id")
@@ -245,11 +244,11 @@ public class Settings {
         }
     }
 
-    public String fetchApiURL() {
+    public String fetchApiURL(String settingsUrl) {
         Properties prop = new Properties();
 
         try {
-            FileInputStream fis = new FileInputStream(new File(SETTINGS_FILE_PATH));
+            FileInputStream fis = new FileInputStream(new File(settingsUrl));
             prop.loadFromXML(fis);
             String str = prop.getProperty("api_url");
             fis.close();
@@ -270,7 +269,7 @@ public class Settings {
         File fScs = new File(getScreenshotPath());
         // File fDrv = new File(getDriverPath());
         File fCnf = new File(getConfigPath());
-        File fLss = new File(SETTINGS_FILE_PATH);
+        File fDs = new File(DEFAULT_CONFIG_PATH.concat("DEFAULT.xml"));
 
         if (!fScs.exists()) {
             LOGGER.info("fScs not exist");
@@ -282,14 +281,14 @@ public class Settings {
             fCnf.mkdirs();
         }
 
-        if (!fLss.exists()) {
-            LOGGER.info("FLss not exist");
+        if (!fDs.exists()) {
+            LOGGER.info("fDs not exist");
             createDefaultSettingsFile();
         }
     }
 
     private void createDefaultSettingsFile() {
-        File f = new File(SETTINGS_FILE_PATH);
+        File f = new File(DEFAULT_CONFIG_PATH.concat("DEFAULT.xml"));
         Properties prop = getSortedPropertiesInstance();
 
         f.setWritable(true);
@@ -315,20 +314,19 @@ public class Settings {
             prop.setProperty("select_link", String.valueOf(DEFAULT_SELECT_LINK));
             prop.setProperty("select_zero_data", String.valueOf(DEFAULT_SELECT_ZERO_DATA));
             prop.setProperty("select_page_loaded", String.valueOf(DEFAULT_SELECT_PAGE_LOADED));
-            prop.setProperty("is_scheduled", String.valueOf(DEFAULT_IS_SCHEDULED));
             prop.setProperty("active_call_timeout", String.valueOf(DEFAULT_ACTIVE_CALL_TIMEOUT));
-            prop.setProperty("active_call_time_of_day", String.valueOf(DEFAULT_ACTIVE_TIME_OF_DAY));
             prop.setProperty("time_format_pattern", String.valueOf(DEFAULT_TIME_FORMAT_PATTERN));
             prop.setProperty("time_zone_id", String.valueOf(DEFAULT_TIME_ZONE_ID));
+            prop.setProperty("api_call_timer", String.valueOf(DEFAULT_API_CALL_PAUSE_TIMER));
             prop.setProperty("lastLoaded", dateTimeNow.toString());
 
             prop.storeToXML(fos, "DEFAULT");
         } catch (InvalidPropertiesFormatException e) {
-            LOGGER.error("Error occured loading the properties file", e);
+            LOGGER.error("createDefaultSettingsFile().InvalidPropertiesFormatException == {}", e.getMessage());
         } catch (FileNotFoundException e) {
-            LOGGER.error("Error occured loading the properties file", e);
+            LOGGER.error("createDefaultSettingsFile().FileNotFoundException == {}", e.getMessage());
         } catch (IOException e) {
-            LOGGER.error("Error occured loading the properties file", e);
+            LOGGER.error("createDefaultSettingsFile().IOException == {}", e.getMessage());
         }
 
     }
@@ -429,32 +427,12 @@ public class Settings {
         this.implicitWaitTimeout = implicitWaitTimeout;
     }
 
-    public boolean isIsScheduled() {
-        return this.isScheduled;
-    }
-
-    public boolean getIsScheduled() {
-        return this.isScheduled;
-    }
-
-    public void setIsScheduled(boolean isScheduled) {
-        this.isScheduled = isScheduled;
-    }
-
     public long getActiveCallTimeout() {
         return this.activeCallTimeout;
     }
 
     public void setActiveCallTimeout(long activeCallTimeout) {
         this.activeCallTimeout = activeCallTimeout;
-    }
-
-    public String getActiveCallTimeOfDay() {
-        return this.activeCallTimeOfDay;
-    }
-
-    public void setActiveCallTimeOfDay(String activeCallTimeOfDay) {
-        this.activeCallTimeOfDay = activeCallTimeOfDay;
     }
 
     public String getTimeFormatPattern() {
@@ -521,6 +499,14 @@ public class Settings {
         this.dateTimeNow = dateTimeNow;
     }
 
+    public int getApiCallTimer() {
+        return this.apiCallTimer;
+    }
+
+    public void setApiCallTimer(int apiCallTimer) {
+        this.apiCallTimer = apiCallTimer;
+    }
+
     @Override
     public String toString() {
         return "{" + " baseUrl='" + getBaseUrl() + "'" + ", filterUrl='" + getFilterUrl() + "'" + ", apiURL='"
@@ -532,9 +518,8 @@ public class Settings {
                 + getTimeFormatPattern() + "'" + ", timeZoneId='" + getTimeZoneId() + "'" + ", buttonNext='"
                 + getButtonNext() + "'" + ", buttonCookie='" + getButtonCookie() + "'" + ", selectLink='"
                 + getSelectLink() + "'" + ", selectZeroData='" + getSelectZeroData() + "'" + ", selectPageLoaded='"
-                + getSelectPageLoaded() + "'" + ", isScheduled='" + isIsScheduled() + "'" + ", activeCallTimeout='"
-                + getActiveCallTimeout() + "'" + ", activeCallTimeOfDay='" + getActiveCallTimeOfDay() + "'"
-                + ", dateTimeNow='" + getDateTimeNow() + "'" + "}";
+                + getSelectPageLoaded() + "'" + ", activeCallTimeout='" + getActiveCallTimeout() + "'"
+                + ", apiCallTimer='" + getApiCallTimer() + "'" + ", dateTimeNow='" + getDateTimeNow() + "'" + "}";
     }
 
 }
