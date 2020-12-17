@@ -1,6 +1,7 @@
 package se.sogeti.app.controllers;
 
 import java.lang.invoke.MethodHandles;
+import java.net.ConnectException;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
@@ -47,7 +48,6 @@ public class Controller {
 
         try {
             String bodyJson = gson.toJson(objects);
-            LOGGER.info("Objects size == {}", objects.size());
 
             HttpRequest request = HttpRequest.newBuilder().POST(BodyPublishers.ofString(bodyJson)).uri(URI.create(uri))
                     .header("Content-Type", "application/json").header("User-Agent", settings.getInternalUserAgent())

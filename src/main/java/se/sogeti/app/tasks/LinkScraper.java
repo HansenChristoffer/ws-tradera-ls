@@ -4,7 +4,10 @@ import java.io.File;
 import java.io.IOException;
 import java.lang.invoke.MethodHandles;
 import java.net.MalformedURLException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.time.ZonedDateTime;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.Random;
 import java.util.Set;
@@ -47,21 +50,29 @@ public class LinkScraper extends BaseTask {
 
   @Override
   public void run() {
-    long elapsedTime = System.currentTimeMillis();
+    settings.updateSettings();
+
+    long startTime = System.currentTimeMillis();
     WebDriver driver = startDriver("chrome");
+
+    Date d = new Date();
+    DateFormat df = new SimpleDateFormat("HH:mm:ss:SSS");
+
+    d.setTime(startTime);
+    LOGGER.info("Starting task {} at {}", super.id, df.format(d));
 
     try {
       fetchAndEnterCategory(driver);
 
       new WebDriverWait(driver, 5).until(ExpectedConditions.elementToBeClickable(By.xpath(settings.getButtonCookie())))
           .click();
-      LOGGER.info("Closed \"accept cookie popup\" window!");
 
       while (Boolean.parseBoolean(database.callGet(settings.getApiURL().concat("/api/status/isActive?value=LS")))) {
-        LOGGER.info("URL == {}", driver.getCurrentUrl());
+        LOGGER.info("Entering {}", driver.getCurrentUrl());
         Document doc = Jsoup.parse(driver.getPageSource());
 
         if (doc.select(settings.getSelectZeroData()).isEmpty() && isNotErrorPage(doc)) {
+          LOGGER.info("Fetching links...");
           Elements links = doc.select(settings.getSelectLink());
 
           ZonedDateTime zdt = ZonedDateTime.parse(database.getPublished(links.get(0).attr("href").split("/")[3]));
@@ -77,31 +88,29 @@ public class LinkScraper extends BaseTask {
               }
             });
 
-            LOGGER.info("Links added, FetchedLinks.size == {}", fetchedLinks.size());
-            LOGGER.info("FormerLinks.size == {}", fetchedLinks.size());
+            LOGGER.info("Done fetching!");
+
             fetchedLinks.removeAll(formerLinks);
-
-            LOGGER.info("FormerLinks removed, FetchedLinks.size == {}", fetchedLinks.size());
-
             formerLinks.clear();
+            LOGGER.info("Sending {} LinkDTOs...", fetchedLinks.size());
             formerLinks = database.postMultiple(fetchedLinks, settings.getApiURL().concat("/api/links/all"));
-            LOGGER.info("Saved links, FormerLinks.size == {}", fetchedLinks.size());
+            LOGGER.info("Done sending!");
 
             String nextHref = "";
             nextHref = doc.select(settings.getButtonNext()).attr("href");
 
-            LOGGER.info("nextHref == {}", nextHref);
             if (!nextHref.isBlank()) {
-              LOGGER.info(" - GETTING NEW PAGE - ");
               driver.get(settings.getBaseUrl().concat(nextHref));
-              waitForPageLoad(settings.getSelectPageLoaded(), driver, 10);
+              waitForPageLoad(settings.getSelectPageLoaded(), driver, settings.getPageLoadTimeout());
             } else {
               fetchAndEnterCategory(driver);
             }
           } else {
+            LOGGER.info("Invalid links!");
             fetchAndEnterCategory(driver);
           }
         } else {
+          LOGGER.info("Invalid links!");
           fetchAndEnterCategory(driver);
         }
       }
@@ -112,9 +121,10 @@ public class LinkScraper extends BaseTask {
       Thread.currentThread().interrupt();
     } catch (Exception e) {
       LOGGER.error("run().Exception == {}", e.getMessage());
-      DriverManager.closeDriver();
     } finally {
-      LOGGER.info("Elapsed time: {}s", (System.currentTimeMillis() - elapsedTime) / 1000);
+      long endTime = System.currentTimeMillis();
+      d.setTime(endTime);
+      LOGGER.info("Ending task {} at {} after {} s", super.id, df.format(d), (endTime - startTime) / 1000);
       DriverManager.closeDriver();
     }
   }
@@ -130,7 +140,7 @@ public class LinkScraper extends BaseTask {
     formerLinks.clear();
     String url = settings.getBaseUrl().concat(database.fetchOpenCategory().getHref()).concat(settings.getFilterUrl());
     driver.get(url);
-    waitForPageLoad(settings.getSelectPageLoaded(), driver, 10);
+    waitForPageLoad(settings.getSelectPageLoaded(), driver, settings.getPageLoadTimeout());
   }
 
   private boolean isNotErrorPage(Document doc) {

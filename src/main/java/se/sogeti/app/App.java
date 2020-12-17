@@ -55,25 +55,14 @@ public class App {
 		while (!killAll) {
 			try {
 				// How long it should wait until asking API if it should execute its task(s)
-				sleep(30);
+				sleep(settings.getApiCallTimer());
 
 				boolean b = Boolean
 						.parseBoolean(DATABASE.callGet(settings.getApiURL().concat("/api/status/isActive?value=LS")));
 
 				if (b && tasks.containsKey("ScrapeTask") && !ThreadExecutor.contains("ScrapeTask")) {
-					// LOGGER.info(
-					// "Advisable conditions! {\n\tisActive == {}\n\tTask exists == {}\n\tTask
-					// isRunning == {}\n}\n",
-					// b, tasks.containsKey("ScrapeTask"), ThreadExecutor.contains("ScrapeTask"));
 					executeTask("ScrapeTask");
-
-				} else {
-					// LOGGER.info(
-					// "Inadvisable conditions! {\n\tisActive == {}\n\tTask exists == {}\n\tTask
-					// isRunning == {}\n}\n",
-					// b, tasks.containsKey("ScrapeTask"), ThreadExecutor.contains("ScrapeTask"));
 				}
-
 			} catch (Exception e) {
 				LOGGER.error("commenceTask().Exception == {}", e.getMessage());
 			}
