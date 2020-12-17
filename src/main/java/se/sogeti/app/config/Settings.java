@@ -316,7 +316,7 @@ public class Settings {
             prop.setProperty("active_call_timeout", String.valueOf(DEFAULT_ACTIVE_CALL_TIMEOUT));
             prop.setProperty("time_format_pattern", String.valueOf(DEFAULT_TIME_FORMAT_PATTERN));
             prop.setProperty("time_zone_id", String.valueOf(DEFAULT_TIME_ZONE_ID));
-            prop.setProperty("api_call_timer", String.valueOf(DEFAULT_API_CALL_PAUSE_TIMER));
+            prop.setProperty("api_call_timer", String.valueOf(DEFAULT_API_CALL_TIMER));
             prop.setProperty("lastLoaded", dateTimeNow.toString());
 
             prop.storeToXML(fos, "DEFAULT");

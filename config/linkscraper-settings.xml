@@ -14,7 +14,7 @@
 <entry key="filter_url">?sortBy=AddedOn&amp;sellerType=Private</entry>
 <entry key="implicit_wait_timeout">10</entry>
 <entry key="internal_user_agent">Scraper HttpClient JDK11+</entry>
-<entry key="lastLoaded">2020-12-10T14:25:56.354873900+01:00[Europe/Paris]</entry>
+<entry key="lastLoaded">2020-12-17T10:44:18.252554100+01:00[Europe/Paris]</entry>
 <entry key="page_load_timeout">45</entry>
 <entry key="screenshot_path">/data/screenshots/</entry>
 <entry key="select_link">a[id*=item_]</entry>
